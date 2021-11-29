@@ -6,8 +6,9 @@ from service.redis_service import Redis_Service
 from random import randint
 from uuid import UUID, uuid4
 from exceptions import custom_exceptions
+import json
 class LinkShortenTest(unittest.TestCase):
-    Validlinks = ["https://www.google.com/search?q=generate+random+valid+url+python&oq=generate+randon+valid+urls+&aqs=chrome.2.69i59j33i22i29i30l9.6571j0j4&sourceid=chrome&ie=UTF-8",
+    Validlinks = ["https://www.w3schools.com/action_page.php?page=1&category=Mobiles%20&%20Accessories",
                     "https://atcoder.jp/contests/abc229/tasks/abc229_e",
                     "https://codeforces.com/contest/1614/problem/C",
                     "https://www.linkedin.com/feed/",
@@ -23,17 +24,21 @@ class LinkShortenTest(unittest.TestCase):
     def __createInvalidLink(self,url :str):
         n = len(url)
         if(randint(0,1)):
-            pos = randint(0,n-1)
+            pos = randint(0,n-2)
             url = url[:pos] +" "+url[pos+1:]
             return url
         else:
             if(randint(0,1)):
-                url.replace('.','',1)
+                url = url.replace('.','r',-1)
                 return url
             else:
-                pos = url.rindex('/')-1
-                url = url[:pos-1] + '?' + url[pos:]
-                return pos
+                if url.find('.')==-1:
+                    url = "." + url
+                    return url
+                else:
+                    pos = url.rfind('.')-1
+                    url = url[:pos-1] + ' ' + url[pos:]
+                return url
     def setUp(self):
         self.app = app.app.test_client()
         for link in self.Validlinks:
@@ -69,6 +74,37 @@ class LinkShortenTest(unittest.TestCase):
             self.assertTrue(False)
             
 
+    def sendShortenRequest(self,link):
+        PARAM = json.dumps( {"link":link})
+        return self.app.get('/shorten',data=PARAM)
+    # sending request to shorten for all valid link, expected status code 200,data = {status_code:200,message: shortened link}
+    def test_02_shortenValidLink(self):
+        for link in self.Validlinks:
+            rv = self.sendShortenRequest(link)
+            self.assertTrue(rv.status_code == 200)
+            rvData = json.loads(rv.get_data())
+            self.assertTrue(rvData['status_code'] ==200)
+
+    def test_03_shortenInvalidLink(self):
+        for link in self.invalidLinks:
+            rv = self.sendShortenRequest(link)
+            rvData = json.loads(rv.get_data().decode())
+            self.assertTrue(rv.status_code == 200)
+            self.assertTrue(rvData['status_code']>=1000)
+
+    def requestRedirection(self,id):
+        return self.app.get('/'+id)
+    def redirect(self):
+        for link in self.shortLinks:
+            id = link.rindex('/')
+            id = link[id+1:]
+            self.requestRedirection(id)
+        for i in range(1,10):
+            id = UUID.uuid4()
+            self.requestRedirection(id)
+    def shortenSameLink(self):
+        for link,sl in self.Validlinks,self.shortLinks:
+            self.sendShortenRequest(link)
 
 if __name__=='__main__':
     unittest.main()

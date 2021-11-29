@@ -1,5 +1,6 @@
 from config import app
 from routes.ls_bp import ls_bp
+from flask import request
 dev = True
 
 # Setting up local dev environment
