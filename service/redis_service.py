@@ -22,7 +22,8 @@ class Redis_Service():
         else:
             #TODO: add exception here
             raise UnshortenLinkNF()
-
+    def getShortenedLink(self,link):
+        return self.linkToShortDb.get(link).decode()
     def __init__(self):
         self.linkToShortDb = redis.Redis(host,port,db = 1)
         self.shortToLinkDb = redis.Redis(host,port,db = 2)
