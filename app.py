@@ -11,6 +11,7 @@ else:
 app.config.from_object('config')
 app.register_blueprint(ls_bp, url_prefix="/")
 
+# this route won't do anything as this route is defined in the controller
 @app.route('/')
 def index():
     return "Running"
