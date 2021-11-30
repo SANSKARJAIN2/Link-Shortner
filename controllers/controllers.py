@@ -1,8 +1,11 @@
-from flask import request
+from flask import request, redirect
+import flask
+from controllers.redirect_class import RedirectClass
 
 from controllers.shorten_class import ShortenLinks
-from exceptions.custom_exceptions import UnshortenLinkNF, InvalidLink, CustomException
+from exceptions.custom_exceptions import UnshortenLinkNF, InvalidLink, CustomException, shortLinkRedirectionError
 import json
+from urllib.parse import urlparse
 
 class returnObj:
     status_code:int
@@ -33,4 +36,12 @@ def shorten():
         return returnObj(1000,"something went wrong").returnObj()
 
 def redirect(short_id = ""):
-    return short_id
+    rc = RedirectClass(short_id)
+    try:
+        link = rc.getredicrectingLink()
+        return flask.redirect(link)
+    except shortLinkRedirectionError as e:
+        return returnObj(e.value,e.message).returnObj()
+    except Exception as e:
+        print(e.__str__())
+        return returnObj(1000,"something went wrong, while redirecting").returnObj()

@@ -1,1 +1,3 @@
 lsEnv
+.gitignore
+__pycache__

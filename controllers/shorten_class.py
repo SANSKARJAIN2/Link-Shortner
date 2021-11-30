@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+from config import rs
 from service.redis_service import Redis_Service
 from exceptions.custom_exceptions import InvalidLink,RedisSetError
 class ShortenLinks():
@@ -18,12 +19,12 @@ class ShortenLinks():
         if(pos==0 or (pos==n-1) or pos==-1):
             return False
         return True
+    #function to create a unique id that will be the identifier for the link and will also be the extention for the short link
     def __createuniqueId(self):
         return str(uuid4())
     def shorten(self):
         if(self.isValidLink()==False):
             raise InvalidLink()
-        rs = Redis_Service()
         # checking if the link is already shortened before
         if(rs.isShortened(self.__link)):
             return rs.getShortenedLink(self.__link)

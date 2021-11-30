@@ -21,3 +21,9 @@ class RedisSetError(Exception):
         self.value = 1003
     def __str__(self):
         return self.customMessage
+class shortLinkRedirectionError(Exception):
+    def __init__(self,m=""):
+        self.message = "short link not found in database"
+        self.value = 1004
+    def __str__(self):
+        return self.customMessage
